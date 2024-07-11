@@ -1,0 +1,388 @@
+openapi: 3.0.0
+servers:
+  - description: Pet Store
+    url: https://localhost
+info:
+  version: 1.0.0
+  title: Pet Store
+  description: >
+    API for managing pet sales and information.
+
+paths:
+  /store/pet/dog:
+    post:
+      summary: Record the sale of a dog.
+      description: >
+        This endpoint records the sale of a dog, updates inventory, and notifies relevant stakeholders.
+      tags:
+        - "storage"
+      requestBody:
+        description: "Request payload for selling a dog."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetSaleRequest'
+            example:
+              value:
+                requestId: 12345
+                sellerId: seller123
+                petId: dog123
+                saleDate: '2023-07-01 10:00:00'
+                breed: 'Labrador'
+                age: '2 years'
+                price: '500'
+      responses:
+        '200':
+          description: "Response payload for selling a dog."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DogSaleResponse'
+              example:
+                success:
+                  value:
+                    requestId: 12345
+                    transactionDate: '2023-07-01 10:00:00'
+                    status: 'completed'
+                    breed: 'Labrador'
+                    message: 'Dog sale recorded successfully.'
+                    remainingInventory: 10
+        '400':
+          description: "Bad request due to invalid input data."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                invalidPetId:
+                  $ref: '#/components/examples/InvalidPetId'
+        '404':
+          description: "Pet or seller not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                petNotFound:
+                  $ref: '#/components/examples/PetNotFound'
+                sellerNotFound:
+                  $ref: '#/components/examples/SellerNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+
+
+  /store/pet/cat:
+    post:
+      summary: Record the sale of a cat.
+      description: >
+        This endpoint records the sale of a cat, updates inventory, and notifies relevant stakeholders.
+      tags:
+        - "storage"
+      requestBody:
+        description: "Request payload for selling a cat."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetSaleRequest'
+            example:
+              value:
+                requestId: 67890
+                sellerId: seller456
+                petId: cat456
+                saleDate: '2023-07-01 11:00:00'
+                breed: 'Siamese'
+                age: '1 year'
+                price: '300'
+      responses:
+        '200':
+          description: "Response payload for selling a cat."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatSaleResponse'
+              example:
+                success:
+                  value:
+                    requestId: 67890
+                    transactionDate: '2023-07-01 11:00:00'
+                    status: 'completed'
+                    breed: 'Siamese'
+                    message: 'Cat sale recorded successfully.'
+                    remainingInventory: 5
+        '400':
+          description: "Bad request due to invalid input data."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                invalidPetId:
+                  $ref: '#/components/examples/InvalidPetId'
+        '404':
+          description: "Pet or seller not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                petNotFound:
+                  $ref: '#/components/examples/PetNotFound'
+                sellerNotFound:
+                  $ref: '#/components/examples/SellerNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+  /store/pet/{petId}:
+    delete:
+      summary: Delete a pet from inventory
+      description: >
+        This endpoint deletes a pet from the inventory. It requires the pet ID to identify which pet to delete.
+      tags:
+        - "storage"
+      parameters:
+        - name: petId
+          in: path
+          required: true
+          description: "The ID of the pet to be deleted."
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Pet deleted successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  petId:
+                    type: string
+              example:
+                success:
+                  value:
+                    message: "Pet deleted successfully."
+                    petId: "pet123"
+        '404':
+          description: "Pet not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                petNotFound:
+                  $ref: '#/components/examples/PetNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+
+  /info/pet/dog:
+    get:
+      summary: Get information about a dog
+      description: >
+        This endpoint retrieves detailed information about a dog, including its breed, age, and current status.
+      tags:
+        - "info"
+      responses:
+        '200':
+          description: "Information about a dog."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DogInfoResponse'
+              example:
+                success:
+                  value:
+                    petId: dog123
+                    name: "Dog"
+                    breed: "Labrador"
+                    age: "2 years"
+                    currentInventory: 10
+        '404':
+          description: "Dog not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                petNotFound:
+                  $ref: '#/components/examples/PetNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+  /info/pet/cat:
+    get:
+      summary: Get information about a cat
+      description: >
+        This endpoint retrieves detailed information about a cat, including its breed, age, and current status.
+      tags:
+        - "info"
+      responses:
+        '200':
+          description: "Information about a cat."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatInfoResponse'
+              example:
+                success:
+                  value:
+                    petId: cat456
+                    name: "Cat"
+                    breed: "Siamese"
+                    age: "1 year"
+                    currentInventory: 5
+        '404':
+          description: "Cat not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                petNotFound:
+                  $ref: '#/components/examples/PetNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+
+components:
+  schemas:
+    PetSaleRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        sellerId:
+          type: string
+        petId:
+          type: string
+        saleDate:
+          type: string
+          format: date-time
+        breed:
+          type: string
+        age:
+          type: string
+        price:
+          type: string
+    DogSaleResponse:
+      allOf:
+        - $ref: '#/components/schemas/PetSaleResponse'
+        - type: object
+          properties:
+            breed:
+              type: string
+    CatSaleResponse:
+      allOf:
+        - $ref: '#/components/schemas/PetSaleResponse'
+        - type: object
+          properties:
+            breed:
+              type: string
+    PetSaleResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        transactionDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+        message:
+          type: string
+        remainingInventory:
+          type: integer
+    DogInfoResponse:
+      allOf:
+        - $ref: '#/components/schemas/PetInfoResponse'
+        - type: object
+          properties:
+            breed:
+              type: string
+            age:
+              type: string
+    CatInfoResponse:
+      allOf:
+        - $ref: '#/components/schemas/PetInfoResponse'
+        - type: object
+          properties:
+            breed:
+              type: string
+            age:
+              type: string
+    PetInfoResponse:
+      type: object
+      properties:
+        petId:
+          type: string
+        name:
+          type: string
+        currentInventory:
+          type: integer
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+      required:
+        - error
+
+  examples:
+    InvalidPetId:
+      value:
+        error:
+          code: 400
+          message: "Invalid pet ID provided."
+    PetNotFound:
+      value:
+        error:
+          code: 404
+          message: "Pet not found."
+    SellerNotFound:
+      value:
+        error:
+          code: 404
+          message: "Seller not found."
+    InternalError:
+      value:
+        error:
+          code: 500
+          message: "Internal server error."
+

@@ -1,0 +1,119 @@
+openapi: 3.0.0
+servers:
+  - description: Order
+    url: https://localhost
+info:
+  version: 1.0.0
+  title: Order Management API
+  description: >
+    API for managing orders in an online store, including orders for products and pets.
+
+paths:
+  /orders:
+    post:
+      summary: Create a new order
+      description: >
+        Endpoint to create a new order in the system.
+      tags:
+        - "order"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+            example:
+              orderId: order123
+              customerId: customer456
+              type: product
+              items:
+                - productId: prod789
+                  quantity: 2
+                - productId: prod234
+                  quantity: 1
+              totalAmount: 150.00
+              orderDate: '2023-07-01T10:00:00'
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+              example:
+                orderId: order123
+                status: created
+                message: Order placed successfully
+        '400':
+          description: Bad request due to invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: 400
+                  message: Invalid order data provided
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: 500
+                  message: Internal server error
+
+components:
+  schemas:
+    OrderRequest:
+      type: object
+      properties:
+        orderId:
+          type: string
+        customerId:
+          type: string
+        type:
+          type: string
+          enum:
+            - product
+            - pet
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: string
+              quantity:
+                type: integer
+        totalAmount:
+          type: number
+          format: double
+        orderDate:
+          type: string
+          format: date-time
+
+    OrderResponse:
+      type: object
+      properties:
+        orderId:
+          type: string
+        status:
+          type: string
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+            message:
+              type: string
+      required:
+        - error

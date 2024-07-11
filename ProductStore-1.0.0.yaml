@@ -1,0 +1,413 @@
+openapi: 3.0.0
+servers:
+  - description: Product Store
+    url: https://localhost
+  - description: Production server
+    url: https://api.example.com
+info:
+  version: 1.0.0
+  title: Product Store
+  description: >
+    Mapper between seller and product storage.
+
+paths:
+  /store/product/iron:
+    post:
+      summary: Sent when seller sells a unique iron product.
+      description: >
+        This endpoint is triggered when a seller sells a unique iron product. It 
+        can be used to record the sale transaction in the system, update inventory, 
+        and notify relevant stakeholders.
+      tags:
+        - "storage"
+      requestBody:
+        description: "Request payload for selling a unique iron product."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSaleRequest'
+            example:
+              value:
+                requestId: 21732d33-7e5f-4994-bb01-002a0da7c17e
+                sellerId: seller123456
+                productId: ironProduct78910
+                saleDate: '2021-05-19 09:36:07.000'
+                unit: '150'
+                type: 'iron'
+                value: '400'
+      responses:
+        '200':
+          description: "Response payload for selling a unique iron product."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IronProductSaleResponse'
+              example:
+                success:
+                  value:
+                    requestId: 21732d33-7e5f-4994-bb01-002a0da7c17e
+                    transactionDate: '2021-05-19 09:36:07.000'
+                    status: 'completed'
+                    material: 'iron'
+                    message: 'Iron product sale recorded successfully.'
+                    remainingInventory: 150
+                    melting-point: '1538'
+                    corrosion: '0.1'
+        '400':
+          description: "Bad request due to invalid input data."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                invalidProductId:
+                  $ref: '#/components/examples/InvalidProductId'
+        '404':
+          description: "Product or seller not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                productNotFound:
+                  $ref: '#/components/examples/ProductNotFound'
+                sellerNotFound:
+                  $ref: '#/components/examples/SellerNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+
+  /store/product/gold:
+    post:
+      summary: Sent when seller sells a unique gold product.
+      description: >
+        This endpoint is triggered when a seller sells a unique gold product. It 
+        can be used to record the sale transaction in the system, update inventory, 
+        and notify relevant stakeholders.
+      tags:
+        - "storage"
+      requestBody:
+        description: "Request payload for selling a unique gold product."
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSaleRequest'
+            example:
+              value:
+                requestId: 21732d33-7e5f-4994-bb01-002a0da7c17e
+                sellerId: seller123456
+                productId: goldProduct78910
+                saleDate: '2021-05-19 09:36:07.000'
+                unit: '10'
+                type: 'gold'
+                value: '50000'
+      responses:
+        '200':
+          description: "Response payload for selling a unique gold product."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoldProductSaleResponse'
+              example:
+                success:
+                  value:
+                    requestId: 21732d33-7e5f-4994-bb01-002a0da7c17e
+                    transactionDate: '2021-05-19 09:36:07.000'
+                    status: 'completed'
+                    material: 'gold'
+                    message: 'Gold product sale recorded successfully.'
+                    remainingInventory: 10
+                    malleability: 'very high'
+                    ductility: 'very high'
+        '400':
+          description: "Bad request due to invalid input data."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                invalidProductId:
+                  $ref: '#/components/examples/InvalidProductId'
+        '404':
+          description: "Product or seller not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                productNotFound:
+                  $ref: '#/components/examples/ProductNotFound'
+                sellerNotFound:
+                  $ref: '#/components/examples/SellerNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+
+  /store/product/{productId}:
+    delete:
+      summary: Delete a product from storage
+      description: >
+        This endpoint deletes a product (either iron or gold) from the storage. It requires 
+        the product ID to identify which product to delete.
+      tags:
+        - "storage"
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: "The ID of the product to be deleted."
+          schema:
+            type: string
+      responses:
+        '200':
+          description: "Product deleted successfully."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  productId:
+                    type: string
+              example:
+                success:
+                  value:
+                    message: "Product deleted successfully."
+                    productId: "product123456"
+        '404':
+          description: "Product not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                productNotFound:
+                  $ref: '#/components/examples/ProductNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+
+  /info/product/iron:
+    get:
+      summary: Get information about the iron product
+      description: >
+        This endpoint retrieves detailed information about the iron product, 
+        including its properties and current status.
+      tags:
+        - "info"
+      responses:
+        '200':
+          description: "Information about the iron product."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  productId:
+                    type: string
+                  name:
+                    type: string
+                  material:
+                    type: string
+                  meltingPoint:
+                    type: string
+                  corrosionRate:
+                    type: string
+                  currentInventory:
+                    type: integer
+              example:
+                success:
+                  value:
+                    productId: ironProduct78910
+                    name: "Iron"
+                    material: "iron"
+                    meltingPoint: '1538'
+                    corrosionRate: '0.1'
+                    currentInventory: 150
+        '404':
+          description: "Iron product not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                productNotFound:
+                  $ref: '#/components/examples/ProductNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+  /info/product/gold:
+    get:
+      summary: Get information about the gold product
+      description: >
+        This endpoint retrieves detailed information about the gold product, 
+        including its properties and current status.
+      tags:
+        - "info"
+      responses:
+        '200':
+          description: "Information about the gold product."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  productId:
+                    type: string
+                  name:
+                    type: string
+                  material:
+                    type: string
+                  malleability:
+                    type: string
+                  ductility:
+                    type: string
+                  currentInventory:
+                    type: integer
+              example:
+                success:
+                  value:
+                    productId: goldProduct78910
+                    name: "Gold"
+                    material: "gold"
+                    malleability: "very high"
+                    ductility: "very high"
+                    currentInventory: 10
+        '404':
+          description: "Gold product not found."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                productNotFound:
+                  $ref: '#/components/examples/ProductNotFound'
+        '500':
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                internalError:
+                  $ref: '#/components/examples/InternalError'
+
+components:
+  schemas:
+    ProductSaleRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        sellerId:
+          type: string
+        productId:
+          type: string
+        saleDate:
+          type: string
+          format: date-time
+        unit:
+          type: string
+        type:
+          type: string
+        value:
+          type: string
+
+    IronProductSaleResponse:
+      allOf:
+        - $ref: '#/components/schemas/ProductSaleResponse'
+        - type: object
+          properties:
+            melting-point:
+              type: string
+            corrosion:
+              type: string
+
+    GoldProductSaleResponse:
+      allOf:
+        - $ref: '#/components/schemas/ProductSaleResponse'
+        - type: object
+          properties:
+            malleability:
+              type: string
+            ductility:
+              type: string
+
+    ProductSaleResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        transactionDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+        material:
+          type: string
+        message:
+          type: string
+        remainingInventory:
+          type: integer
+        materialType:
+          type: "string"
+          enum:
+            - IRON
+            - GOLD
+
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        status:
+          type: string
+        message:
+          type: string
+
+  examples:
+    InvalidProductId:
+      value:
+        requestId: 21732d33-7e5f-4994-bb01-002a0da7c17e
+        status: 'error'
+        message: 'Invalid product ID provided.'
+    ProductNotFound:
+      value:
+        requestId: 21732d33-7e5f-4994-bb01-002a0da7c17e
+        status: 'error'
+        message: 'The specified product was not found.'
+    SellerNotFound:
+      value:
+        requestId: 21732d33-7e5f-4994-bb01-002a0da7c17e
+        status: 'error'
+        message: 'The specified seller was not found.'
+    InternalError:
+      value:
+        requestId: 21732d33-7e5f-4994-bb01-002a0da7c17e
+        status: 'error'
+        message: 'An unexpected error occurred. Please try again later.'

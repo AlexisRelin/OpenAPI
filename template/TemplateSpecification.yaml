@@ -1,0 +1,103 @@
+openapi: X.X.X # Version de la spécification OpenApi utilisée.
+servers: # Liste des serveurs où l'API est hébergée"
+  - description: my description # Description du serveur 1
+    url: https://localhost # URL du serveur 1
+  - description: my description  # Description du serveur 2
+    url: https://localhost # URL du serveur 2
+  # [...]
+info:
+  version: X.X.X # Version de la spécification
+  title: my title # titre de la spécification
+  description: my description  # Description détaillée de l'API
+
+paths:
+  /my/uri/resource: # Methode HTTP
+    post: # Verbe HTTP
+      summary: my summary # Résumé de l'endpoint.
+      description: my description # Description complète de l'endpoint.
+      tags:
+        - "myTag" # Catégorie de l'endpoint. Détail dans l'article
+
+      requestBody:  # Corps de la requête.
+        description: "my description" # description de la requête
+        content:
+          application/json:
+            schema:
+              # Objet de requête. Les références sont détaillées dans l'article.
+              $ref: '#/components/schemas/myRequest'
+            example:
+              value:
+                requestId: XXXXXXXXXXXX
+                variable1: value1
+                variable2: value2
+                variable3: 'value3'
+
+      responses: # Liste des réponses possibles.
+        # Réponse nominale.
+        '200':   # Code HTTP
+          description: "my description" # Description de la réponse
+          content: # Type de média que l'API accepte pour les données renvoyées au client.
+            application/json:
+              schema:
+                # Objet de réponse.
+                $ref: '#/components/schemas/myResponse'
+              example: # Exemple de réponse
+                success:
+                  value:
+                    requestId: XXXXXXXXXXXX
+                    variable1: value1
+                    variable2: value2
+                    variable3: 'value3'
+        # Réponses en erreur.
+        '400':    # Code HTTP
+          description: "my description" # Description de la réponse
+          content: # Type de média que l'API accepte pour les données renvoyées au client.
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example: # Exemple de réponse
+                invalidProductId:
+                  $ref: '#/components/examples/specificError'
+
+components:
+  schemas:    # Schemas réutilisables
+    myRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        variable1:
+          type: string
+        variable2:
+          type: string
+        variable3:
+          type: string
+
+    myResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        variable1:
+          type: string
+        variable2:
+          type: string
+        variable3:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        status:
+          type: string
+        message:
+          type: string
+
+  examples:       # Exemples réutilisables
+    specificError:
+      value:
+        requestId: XXXXXXXXXX
+        status: 'error'
+        message: 'my message'

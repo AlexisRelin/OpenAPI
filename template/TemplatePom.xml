@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>1.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.0.0</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.example</groupId>
+    <artifactId>OpenApiGenerator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>OpenApiGenerator</name>
+    <description>OpenApiGenerator</description>
+
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.3.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Version du Plugin OpenAPI generator centralisé en cas de projet multi-modules -->
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>7.7.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Plugin OpenAPI generator -->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+
+                <!-- La configuration en dehors de la balise executions est la configuration mise en commun pour toutes les générations -->
+                <configuration>
+                    <ignoreFileOverride>${project.basedir}/.openapi-codegen-ignore</ignoreFileOverride> <!-- Fichier qui permet de déclarer les éléments à ne pas générer dans le target -->
+                    <generateApiTests>false</generateApiTests>          <!-- génération automatique des squelettes de tests des API -->
+                    <generateModelTests>false</generateModelTests>      <!-- génération automatique des squelettes de tests des DTO -->
+                    <modelNameSuffix>Dto</modelNameSuffix>              <!-- Suffix des noms de models autogénérés -->
+                    <configOptions>
+                        <useTags>true</useTags>            <!-- Prefix le controller et son interface avec le nom du tag (uniquement pour la génération du controller) -->
+                        <dateLibrary>java8</dateLibrary>   <!-- Spécifier quelle bibliothèque de gestion des dates sera utilisée dans le code généré, préférer java8 hors code legacy -->
+                        <useJakartaEe>true</useJakartaEe>  <!-- Spécifier si le code généré doit utiliser les API de Jakarta EE (jakarta) au lieu des anciennes API de Java EE (javax). -->
+                    </configOptions>
+                    <!-- Les deux paramètres doivent être opposés -->
+                    <addCompileSourceRoot>true</addCompileSourceRoot>           <!-- Vocation de l'utilisation du code généré dans le main (exemple : module métier) -->
+                    <addTestCompileSourceRoot>false</addTestCompileSourceRoot>  <!-- Vocation de l'utilisation du code généré dans le test (ex : module cucumber) -->
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>generate-client-product-storage-mapper</id>
+                        <?m2e execute onConfiguration,onIncremental?>
+                        <goals>
+                            <goal>generate</goal> <!-- Automatise le processus de création et de mise à jour du code basé sur les spécifications de l'API. -->
+                        </goals>
+
+                        <configuration>
+                            <generatorName>java</generatorName> <!-- Langage des classes générées, avec java un Client sera généré -->
+                            <inputSpec>${project.basedir}/ProductStore-1.0.0.yaml</inputSpec>     <!-- Spécification concernée par la génération-->
+                            <output>${project.build.directory}/generated-sources/openapi</output> <!-- Package racine où générer, choisir generated-test-sources pour un module de test comme un module d'acceptance criteria -->
+                            <configOptions>
+                                <library>webclient</library>                    <!-- Choix du client HTTP pour la partie client -->
+                                <sourceFolder>src/main/java</sourceFolder>  <!-- Sous package où générer, choisir src/test/java pour un module de test comme un module d'acceptance criteria-->
+                                <!-- packages sous <output>/<sourceFolder> -->
+                                <apiPackage>com.example.openapigenerator.product.client.api</apiPackage>        <!-- package des clients -->
+                                <modelPackage>com.example.openapigenerator.product.client.model</modelPackage>  <!-- package des models (request et response) -->
+                                <invokerPackage>com.example.openapigenerator.product.client</invokerPackage>    <!-- package des classes générées qui encapsulent la logique nécessaire pour créer les controllers ou les clients avec la configuration associée -->
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-client-pet-storage-mapper</id>
+                        <?m2e execute onConfiguration,onIncremental?>
+                        <goals>
+                            <goal>generate</goal> <!-- Automatise le processus de création et de mise à jour du code basé sur les spécifications de l'API. -->
+                        </goals>
+
+                        <configuration>
+                            <generatorName>java</generatorName> <!-- Langage des classes générées, avec java un Client sera généré -->
+                            <inputSpec>${project.basedir}/PetStore-1.0.0.yaml</inputSpec> <!-- Spécification concernée par la génération-->
+                            <output>${project.build.directory}/generated-sources/openapi</output> <!-- Package racine où générer, choisir generated-test-sources pour un module de test comme un module d'acceptance criteria -->
+                            <configOptions>
+                                <library>webclient</library>                <!-- Choix du client HTTP pour la partie client -->
+                                <sourceFolder>src/main/java</sourceFolder>  <!-- Sous package où générer, choisir src/test/java pour un module de test comme un module d'acceptance criteria-->
+                                <!-- packages sous <output>/<sourceFolder> -->
+                                <apiPackage>com.example.openapigenerator.pet.client.api</apiPackage>        <!-- package des clients -->
+                                <modelPackage>com.example.openapigenerator.pet.client.model</modelPackage>  <!-- package des models (request et response) -->
+                                <invokerPackage>com.example.openapigenerator.pet.client</invokerPackage>    <!-- package des classes générées qui encapsulent la logique nécessaire pour créer les controllers ou les clients avec la configuration associée -->
+                            </configOptions>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>generate-poker-api</id>
+                        <?m2e execute onConfiguration,onIncremental?>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+
+                        <configuration>
+                            <generatorName>spring</generatorName> <!-- Langage des classes générées, avec spring un Controler sera généré -->
+                            <inputSpec>${project.basedir}/Order-1.0.0.yaml</inputSpec> <!-- Spécification concernée par la génération-->
+                            <configOptions>
+                                <delegatePattern>true</delegatePattern> <!-- Utilisation du pattern delegate pour interagir avec le controller auto-généré -->
+                                <apiPackage>com.example.openapigenerator.order.rest.api</apiPackage>        <!-- package des controller -->
+                                <modelPackage>com.example.openapigenerator.order.rest.model</modelPackage>  <!-- package des models (request et response) -->
+                                <invokerPackage>com.example.openapigenerator.order.rest</invokerPackage>    <!-- package des classes générées qui encapsulent la logique nécessaire pour créer les controllers ou les clients avec la configuration associée -->
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
